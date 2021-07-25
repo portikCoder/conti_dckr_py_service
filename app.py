@@ -79,8 +79,9 @@ api.add_resource(AnyTypeHandler, "/", )
 
 
 # mixing ways of routing is not a wise step, just in some really special cases
-@app.route('/avg', methods=['GET'])
-def avg():
+# @app.route('/avg', methods=['GET'])
+def avg(dummy_self_var=''):
+    # the dummy_self_var is needed in order to trick and pretend to be as an instance method
     with get_db_connection() as db_conn:
         result = db_conn.execute('SELECT AVG(anytype) FROM anytype WHERE datatype==True').fetchone()[0]
     result = result if result else 0
@@ -88,6 +89,15 @@ def avg():
 
     return Response(str(result))
 
+
+# imitating that this function is a Resource :D
+avg.view_class = Resource
+avg.as_view = lambda x, y: avg
+
+avg.view_class.methods = {'GET', }
+avg.view_class.get = avg
+
+api.add_resource(avg, '/asd')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
