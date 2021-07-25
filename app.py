@@ -4,12 +4,16 @@ from contextlib import contextmanager
 from http import HTTPStatus
 from pprint import pprint
 from typing import Any
-
 from flask import Flask, request, Response
-from flask_restful import Api, Resource
+from flask_restx import Api, Resource
 
 app = Flask(__name__)
-api = Api(app)
+api = Api(app=app,
+          version="1.0",
+          title="Name Recorder",
+          description="Manage names of various users of the application")
+
+name_space = api.namespace('names', description='Manage names')
 
 db_conn = sqlite3.connect("file::memory:?cache=shared", uri=True)
 db_conn.execute('CREATE TABLE anytype (id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -71,7 +75,7 @@ class AnyTypeHandler(Resource):
         return Response(str(result), status=HTTPStatus.OK, mimetype='application/json')
 
 
-api.add_resource(AnyTypeHandler, "/", "/ai-quotes/", "/ai-quotes/<int:id>")
+api.add_resource(AnyTypeHandler, "/", )
 
 
 # mixing ways of routing is not a wise step, just in some really special cases
